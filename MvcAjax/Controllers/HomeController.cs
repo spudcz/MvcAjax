@@ -58,10 +58,9 @@ namespace MvcAjax.Controllers
         {
             SlowDownTask();
             if (ModelState.IsValid) {
-                var index = PeopleRepository.Current.Select((x, y) => new { Person = x, Index = new int?(y) }).Where(x => x.Person.Id == person.Id).Select(x => x.Index).FirstOrDefault();
-                if (index.HasValue) {
-                    PeopleRepository.Current.RemoveAt(index.Value);
-                    PeopleRepository.Current.Insert(index.Value, person);
+                var index = PeopleRepository.Current.IndexOf(x => x.Id == person.Id);
+                if (index > -1) {
+                    PeopleRepository.Current[index] = person;
                 }
             }
             return PartialView("_Update", person);

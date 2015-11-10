@@ -2,6 +2,7 @@
 using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
+using System.Linq.Expressions;
 
 namespace MvcAjax.Models
 {
@@ -85,6 +86,13 @@ namespace MvcAjax.Models
             return _items.IndexOf(item);
         }
 
+        public int IndexOf(Expression<Func<Person, bool>> expr)
+        {
+            var func = expr.Compile();
+            var person = _items.FirstOrDefault(x => func(x));
+            return person != null ? IndexOf(person) : -1;
+        }
+
         public void Insert(int index, Person item)
         {
             InvalidateId(item);
@@ -101,7 +109,12 @@ namespace MvcAjax.Models
             get { return _items[index]; }
             set
             {
-                InvalidateId(value);
+                if (value == null) {
+                    throw new ArgumentNullException();
+                }
+                if (_items[index].Id != value.Id) {
+                    InvalidateId(value);
+                }
                 _items[index] = value;
             }
         }
