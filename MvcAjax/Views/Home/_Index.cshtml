@@ -1,0 +1,47 @@
+﻿@model IEnumerable<MvcAjax.Models.Person>
+<table class="table table-condensed table-responsive">
+    <thead>
+        <tr>
+            <th style="width:3em">#</th>
+            <th>@Html.DisplayNameFor(x => x.Name)</th>
+            <th>@Html.DisplayNameFor(x => x.Surname)</th>
+            <th>@Html.DisplayNameFor(x => x.Email)</th>
+            <th>@Html.DisplayNameFor(x => x.Age)</th>
+            <th style="width:11em;">&nbsp;</th>
+        </tr>
+    </thead>
+    <tbody>
+        @foreach (var item in Model)
+        {
+            <tr>
+                <td>@item.Id</td>
+                <td>@item.Name</td>
+                <td>@item.Surname</td>
+                <td>@Html.Raw(string.IsNullOrEmpty(item.Email) ? "&nbsp;" : "<a href=\"mailto:"+ item.Email + "\">"+ item.Email + "<a>")</td>
+                <td>@item.Age</td>
+                <td>
+                    <a href="@Url.Action("UpdatePartial", new {id = item.Id})"
+                       class="btn btn-xs btn-success"
+                       data-ajax="true"
+                       data-ajax-complete="OpenFormComplete"
+                       data-ajax-method="GET"
+                       data-ajax-mode="replace"
+                       data-ajax-loading="#loadingPanel"
+                       data-ajax-update="#myModal">
+                        <span class="glyphicon glyphicon-pencil"></span> Update
+                    </a>
+
+                    <a href="@Url.Action("Delete", new {id = item.Id})"
+                       class="btn btn-xs btn-danger"
+                       data-ajax="true"
+                       data-ajax-method="POST"
+                       data-ajax-complete="DeleteComplete"
+                       data-ajax-loading="#loadingPanel"
+                       data-ajax-confirm="Do you want to delete it?">
+                        <span class="glyphicon glyphicon-trash"></span> Delete
+                    </a>
+                </td>
+            </tr>
+        }
+    </tbody>
+</table>

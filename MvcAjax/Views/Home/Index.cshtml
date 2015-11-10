@@ -1,0 +1,102 @@
+﻿@{
+    ViewBag.Title = "List of people";
+}
+
+<a href="@Url.Action("CreatePartial")"
+   class="btn btn-xs btn-success"
+   data-ajax="true"
+   data-ajax-complete="OpenFormComplete"
+   data-ajax-method="GET"
+   data-ajax-mode="replace"
+   data-ajax-loading="#loadingPanel"
+   data-ajax-update="#myModal">
+    <span class="glyphicon glyphicon-plus-sign"></span> Add person
+</a>
+
+<a href="@Url.Action("IndexPartial")"
+   id="reloadItemsLink"
+   class="btn btn-xs btn-default" 
+   data-ajax="true"
+   data-ajax-complete="ReloadItemsComplete"
+   data-ajax-method="GET"
+   data-ajax-mode="replace"
+   data-ajax-loading="#loadingPanel"
+   data-ajax-update="#myItems">
+    <span class="glyphicon glyphicon-refresh"></span> Reload items
+</a>
+
+<hr />
+
+@* Container for grid items *@
+<div id="myItems">
+    @Html.Action("IndexPartial", new { skip = ViewBag.Skip, take = ViewBag.Take })
+</div>
+
+@* Container for Create/Update form *@
+<div class="modal fade" id="myModal"></div>
+
+@* Loading message *@
+<div id="loadingPanel" style="display: none; position: absolute; left: 0; top: 0; width: 100%; height: 100%; overflow: hidden; background-color: rgba(255, 255, 255, 0.7);">
+    <div class="alert alert-info" style="width: 10em; margin: 150px auto;">
+        <span class="glyphicon glyphicon-hourglass"></span> Loading ...
+    </div>
+</div>
+
+@section scripts
+{
+    <script>
+        var OpenFormComplete = function (response) {
+            if (response.status === 200) {
+                $('#myModal').modal('show');
+                $.validator.unobtrusive.parse('#myModal'); // enable client validation in loaded form
+            } else {
+                alert('Failed to retrieve form definition.');
+            }
+        };
+
+        var SavePersonBegin = function() {
+            $(this).find('button').prop('disabled', true);
+        };
+        var SavePersonComplete = function (response, data) {
+            $(this).find('button').prop('disabled', false);
+            if (response.status === 200) {
+                var html = response.responseText;
+                var success = $(html).find('input[name="__success"]').val().toLowerCase() === "true";
+                if (success) {
+                    $('#myModal').modal('hide');
+                    ReloadItems();
+                } else {
+                    $('#myModal').html(html);
+                }
+            } else {
+                alert('Failed to save form data.');
+            }
+        }
+
+        var ReloadItemsComplete = function(response) {
+            if (response.status === 200) {
+            } else {
+                alert('Failed to reload items in grid.');
+            }
+        }
+
+        var DeleteComplete = function(response) {
+            if (response.status === 200) {
+                ReloadItems();
+            }
+            else {
+                alert('Failed to delete item.');
+            }
+        }
+
+        var ReloadItems = function() {
+            $('#reloadItemsLink').trigger('click');
+        };
+
+        $(function() {
+            $('#myModal').on('shown.bs.modal', function() {
+                $(this).find('input[type!="hidden"],textarea,select').eq(0).focus();
+            });
+        });
+    </script>
+}
